@@ -200,11 +200,11 @@ export default function IdleFactoryGame() {
         <Construction key="construction" />,
         <Mountain key="mountain" />,
       ]
-      const resourceIds = ["ore", "crystal", "plant_fiber", "essence", "lumber", "stone"]
+      const resourceIds = ["jin", "mu", "shui", "huo", "tu"]
       setMines(
-        Array.from({ length: 6 }).map((_, i) => ({
+        resourceIds.map((item, i) => ({
           id: `mine_${i + 1}`,
-          name: generateRandomMineName(),
+          name: item,
           producesResourceId: resourceIds[i % resourceIds.length],
           productionRate: 1 + Math.random(), // 1-2 per sec
           level: 1,
