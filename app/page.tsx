@@ -36,6 +36,8 @@ import { Factory } from '@/types/factory'
 import { Mine } from '@/types/mine'
 import { ResearchItem } from '@/types/research'
 import { renderProductionPage } from './production/page'
+import { renderResourcePage } from './resource/page'
+import Footer from './layout/footer'
 
 // --- Helper Functions ---
 const generateRandomMineName = () => {
@@ -269,88 +271,84 @@ export default function IdleFactoryGame() {
 
   // Mine Production
   useEffect(() => {
-    const interval = setInterval(() => {
-      setRawResources((prev) => {
-        const newResources = [...prev]
-        mines.forEach((mine) => {
-          const resIndex = newResources.findIndex((r) => r.id === mine.producesResourceId)
-          if (resIndex !== -1) {
-            let productionBoost = 1
-            if (researchItems.find((ri) => ri.id === "research_faster_drills" && ri.isResearched)) {
-              productionBoost = 1.2
-            }
-            newResources[resIndex].amount += (mine.productionRate * mine.level * productionBoost) / 10 // per 100ms
-          }
-        })
-        return newResources
-      })
-    }, 100) // Update every 100ms for smoother resource gain
-    return () => clearInterval(interval)
+    // const interval = setInterval(() => {
+    //   setRawResources((prev) => {
+    //     const newResources = [...prev]
+    //     mines.forEach((mine) => {
+    //       const resIndex = newResources.findIndex((r) => r.id === mine.producesResourceId)
+    //       if (resIndex !== -1) {
+    //         let productionBoost = 1
+    //         if (researchItems.find((ri) => ri.id === "research_faster_drills" && ri.isResearched)) {
+    //           productionBoost = 1.2
+    //         }
+    //         newResources[resIndex].amount += (mine.productionRate * mine.level * productionBoost) / 10 // per 100ms
+    //       }
+    //     })
+    //     return newResources
+    //   })
+    // }, 100) // Update every 100ms for smoother resource gain
+    // return () => clearInterval(interval)
+    
   }, [mines, researchItems])
 
   // Factory Production & Sales Simulation
   useEffect(() => {
-    const interval = setInterval(() => {
-      setFactories((prevFactories) =>
-        prevFactories.map((factory) => {
-          if (factory.isLocked || !factory.selectedGoodId) return factory
+    // const interval = setInterval(() => {
+    //   setFactories((prevFactories) =>
+    //     prevFactories.map((factory) => {
+    //       if (factory.isLocked || !factory.selectedGoodId) return factory
 
-          const good = availableGoods.find((g) => g.id === factory.selectedGoodId)
-          if (!good) return factory
+    //       const good = availableGoods.find((g) => g.id === factory.selectedGoodId)
+    //       if (!good) return factory
 
-          // Check resource requirements
-          let canProduce = true
-          const tempResources = JSON.parse(JSON.stringify(rawResources)) // Deep copy for check
-          for (const req of good.requiredResources) {
-            const resIdx = tempResources.findIndex((r) => r.id === req.resourceId)
-            if (resIdx === -1 || tempResources[resIdx].amount < req.amount * factory.level) {
-              canProduce = false
-              break
-            }
-          }
+    //       // Check resource requirements
+    //       let canProduce = true
+    //       const tempResources = JSON.parse(JSON.stringify(rawResources)) // Deep copy for check
+    //       for (const req of good.requiredResources) {
+    //         const resIdx = tempResources.findIndex((r) => r.id === req.resourceId)
+    //         if (resIdx === -1 || tempResources[resIdx].amount < req.amount * factory.level) {
+    //           canProduce = false
+    //           break
+    //         }
+    //       }
 
-          if (!canProduce) return { ...factory, productionProgress: 0 } // Reset progress if cannot produce
+    //       if (!canProduce) return { ...factory, productionProgress: 0 } // Reset progress if cannot produce
 
-          let newProgress = factory.productionProgress + 100 / (factory.baseProductionTime / 100)
-          let madeSale = false
+    //       let newProgress = factory.productionProgress + 100 / (factory.baseProductionTime / 100)
+    //       let madeSale = false
 
-          if (newProgress >= 100) {
-            newProgress = 0 // Reset progress
+    //       if (newProgress >= 100) {
+    //         newProgress = 0 // Reset progress
 
-            // Consume resources
-            setRawResources((currentRawResources) => {
-              const updatedRawResources = [...currentRawResources]
-              for (const req of good.requiredResources) {
-                const resIdx = updatedRawResources.findIndex((r) => r.id === req.resourceId)
-                if (resIdx !== -1) {
-                  updatedRawResources[resIdx].amount -= req.amount * factory.level
-                }
-              }
-              return updatedRawResources
-            })
+    //         // Consume resources
+    //         setRawResources((currentRawResources) => {
+    //           const updatedRawResources = [...currentRawResources]
+    //           for (const req of good.requiredResources) {
+    //             const resIdx = updatedRawResources.findIndex((r) => r.id === req.resourceId)
+    //             if (resIdx !== -1) {
+    //               updatedRawResources[resIdx].amount -= req.amount * factory.level
+    //             }
+    //           }
+    //           return updatedRawResources
+    //         })
 
-            // Add money
-            setMoney((m) => m + good.basePrice * factory.level)
-            madeSale = true
-          }
+    //         // Add money
+    //         setMoney((m) => m + good.basePrice * factory.level)
+    //         madeSale = true
+    //       }
 
-          return {
-            ...factory,
-            productionProgress: newProgress,
-            lastSaleTime: madeSale ? Date.now() : factory.lastSaleTime,
-          }
-        }),
-      )
-    }, 100)
-    return () => clearInterval(interval)
+    //       return {
+    //         ...factory,
+    //         productionProgress: newProgress,
+    //         lastSaleTime: madeSale ? Date.now() : factory.lastSaleTime,
+    //       }
+    //     }),
+    //   )
+    // }, 100)
+    // return () => clearInterval(interval)
   }, [factories, availableGoods, rawResources]) // Added rawResources dependency
 
   // --- UI Event Handlers ---
-  const handleSelectGood = (factoryId: number, goodId: string | null) => {
-    setFactories((prev) =>
-      prev.map((f) => (f.id === factoryId ? { ...f, selectedGoodId: goodId, productionProgress: 0 } : f)),
-    )
-  }
 
   const handleResearch = (researchId: string) => {
     const item = researchItems.find((r) => r.id === researchId)
@@ -422,150 +420,12 @@ export default function IdleFactoryGame() {
         return unlocked ? { ...factory, isLocked: false } : factory
       }),
     )
-  }, [worldLevel, researchItems])
+  }, [worldLevel, researchItems]);
 
-  // --- Render Functions ---
-  // const renderProductionPage = () => (
-  //   <div className="space-y-6">
-  //     {factories.map((factory) => (
-  //       <Card
-  //         key={factory.id}
-  //         className={cn("overflow-hidden", factory.color, factory.isLocked && "opacity-60 bg-slate-800/50")}
-  //       >
-  //         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-black/10">
-  //           <div className="flex items-center gap-3">
-  //             {factory.visualIcon}
-  //             <div>
-  //               <CardTitle>
-  //                 <span className='text-base text-yellow-500 font-bold'>{factory.name}</span>
-  //                  {factory.isLocked && <Lock className="inline w-5 h-5 ml-2 text-red-400" />}
-  //               </CardTitle>
-  //               <CardDescription>
-  //                 {factory.effectType} - Lvl {factory.level}
-  //               </CardDescription>
-  //             </div>
-  //           </div>
-  //           {!factory.isLocked && (
-  //             <DropdownMenu>
-  //               <DropdownMenuTrigger asChild>
-  //                 <Button variant="outline" size="sm" className="ml-auto gap-1">
-  //                   {factory.selectedGoodId
-  //                     ? availableGoods.find((g) => g.id === factory.selectedGoodId)?.name
-  //                     : "Select Good"}
-  //                   <ChevronDown className="h-4 w-4" />
-  //                 </Button>
-  //               </DropdownMenuTrigger>
-  //               <DropdownMenuContent align="end" className="bg-slate-800 text-white border-slate-700">
-  //                 {availableGoods.map((good) => (
-  //                   <DropdownMenuItem
-  //                     key={good.id}
-  //                     onSelect={() => handleSelectGood(factory.id, good.id)}
-  //                     className="hover:bg-purple-600 focus:bg-purple-600"
-  //                   >
-  //                     {good.icon} <span className="ml-2">{good.name}</span>
-  //                   </DropdownMenuItem>
-  //                 ))}
-  //                 <DropdownMenuItem
-  //                   onSelect={() => handleSelectGood(factory.id, null)}
-  //                   className="text-red-400 hover:bg-red-700 focus:bg-red-700"
-  //                 >
-  //                   Stop Production
-  //                 </DropdownMenuItem>
-  //               </DropdownMenuContent>
-  //             </DropdownMenu>
-  //           )}
-  //         </CardHeader>
-  //         <CardContent className="p-4">
-  //           {factory.isLocked ? (
-  //             <div className="text-center py-4">
-  //               <p className="text-gray-400">Locked</p>
-  //               <p className="text-sm text-gray-500">Unlock: {factory.unlockConditionText}</p>
-  //               {/* Basic unlock button for testing, can be removed */}
-  //               {/* <Button size="sm" onClick={() => setFactories(fs => fs.map(f => f.id === factory.id ? {...f, isLocked: false} : f))} className="mt-2">Dev Unlock</Button> */}
-  //             </div>
-  //           ) : (
-  //             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-  //               <div className="md:col-span-2">
-  //                 <p className="text-sm text-gray-400 mb-1">
-  //                   Producing:{" "}
-  //                   {factory.selectedGoodId
-  //                     ? availableGoods.find((g) => g.id === factory.selectedGoodId)?.name
-  //                     : "Nothing"}
-  //                 </p>
-  //                 <Progress value={factory.productionProgress} className="h-3 mb-2" />
-  //                 {factory.selectedGoodId && (
-  //                   <div>
-  //                     <p className="text-xs text-gray-500">Required Resources:</p>
-  //                     <ul className="list-disc list-inside text-xs text-gray-500">
-  //                       {availableGoods
-  //                         .find((g) => g.id === factory.selectedGoodId)
-  //                         ?.requiredResources.map((req) => {
-  //                           const res = rawResources.find((r) => r.id === req.resourceId)
-  //                           const currentAmount = res ? res.amount : 0
-  //                           const neededAmount = req.amount * factory.level
-  //                           return (
-  //                             <li key={req.resourceId} className={cn(currentAmount < neededAmount && "text-red-400")}>
-  //                               {res?.name}: {neededAmount} (Have: {Math.floor(currentAmount)})
-  //                             </li>
-  //                           )
-  //                         })}
-  //                     </ul>
-  //                   </div>
-  //                 )}
-  //               </div>
-  //               <div className="text-center md:text-right">
-  //                 <ShoppingCart
-  //                   className={cn(
-  //                     "w-10 h-10 mx-auto md:mx-0 md:ml-auto mb-1 transition-colors duration-300",
-  //                     Date.now() - factory.lastSaleTime < 500 ? "text-green-400 animate-pulse" : "text-gray-600",
-  //                   )}
-  //                 />
-  //                 <p className="text-xs text-gray-500">Buyers Sim</p>
-  //                 {Date.now() - factory.lastSaleTime < 10000 &&
-  //                   Date.now() - factory.lastSaleTime > 100 && ( // Show for 10s after sale
-  //                     <p className="text-sm text-green-400 animate-ping absolute right-4 bottom-4">
-  //                       +$
-  //                       {(availableGoods.find((g) => g.id === factory.selectedGoodId)?.basePrice || 0) * factory.level}
-  //                     </p>
-  //                   )}
-  //               </div>
-  //             </div>
-  //           )}
-  //         </CardContent>
-  //       </Card>
-  //     ))}
-  //   </div>
-  // )
-
-  const renderResourcePage = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {mines.map((mine) => {
-        const resource = rawResources.find((r) => r.id === mine.producesResourceId)
-        return (
-          <Card key={mine.id} className={cn("overflow-hidden", mine.color)}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-black/10">
-              <div className="flex items-center gap-2">
-                {React.cloneElement(mine.icon, {
-                  className: cn(mine.icon.props.className, resource?.color || "text-gray-300"),
-                })}
-                <CardTitle className="text-base">{mine.name}</CardTitle>
-              </div>
-              <span className="text-xs bg-black/20 px-2 py-1 rounded">Lvl {mine.level}</span>
-            </CardHeader>
-            <CardContent className="p-4">
-              <p className="text-sm">
-                Produces: <span className={cn(resource?.color)}>{resource?.name}</span>
-              </p>
-              <p className="text-xs text-gray-400">Rate: {(mine.productionRate * mine.level).toFixed(2)}/sec</p>
-              <Button size="sm" className="w-full mt-3 bg-slate-700 hover:bg-slate-600" disabled>
-                Upgrade (Soon)
-              </Button>
-            </CardContent>
-          </Card>
-        )
-      })}
-    </div>
-  )
+  const setActiveTabFn = (tab: string) => {
+    console.log(`Switching to tab: ${tab}`);
+    setActiveTab(tab);
+  }
 
   const renderResearchPage = () => (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -663,11 +523,13 @@ export default function IdleFactoryGame() {
   )
 
   const renderMainContent = () => {
+    console.log("Rendering main content...");
+    
     switch (activeTab) {
       case "production":
-        return renderProductionPage({ rawResources, availableGoods })
+        return renderProductionPage({ rawResources, availableGoods, factories })
       case "resource":
-        return renderResourcePage()
+        return renderResourcePage({ mines, rawResources })
       case "research":
         return renderResearchPage()
       // Placeholder for other tabs from previous version
@@ -683,16 +545,6 @@ export default function IdleFactoryGame() {
         return null
     }
   }
-
-  const menuItems = [
-    { id: "production", label: "Production", icon: <FactoryIcon className="w-4 h-4" /> },
-    { id: "resource", label: "Resources", icon: <Pickaxe className="w-4 h-4" /> },
-    { id: "research", label: "Research", icon: <BookOpen className="w-4 h-4" /> },
-    // { id: "development", label: "Development", icon: <Hammer className="w-4 h-4" /> }, // Kept for potential future re-integration
-    // { id: "equipment", label: "Equipment", icon: <Package className="w-4 h-4" /> },
-    // { id: "employee", label: "Employee", icon: <Briefcase className="w-4 h-4" /> },
-    // { id: "achievements", label: "Achievements", icon: <Trophy className="w-4 h-4" /> },
-  ]
 
   return (
     <TooltipProvider>
@@ -744,23 +596,8 @@ export default function IdleFactoryGame() {
           </aside>
           <main className="flex-1">{renderMainContent()}</main>
         </div>
-
-        <footer className="fixed bottom-0 left-0 right-0 bg-black/30 backdrop-blur-sm border-t border-white/10 z-40">
-          <div className="max-w-7xl mx-auto p-3 sm:p-4">
-            <nav className="flex items-center justify-center gap-1 sm:gap-2">
-              {menuItems.map((item) => (
-                <Button
-                  key={item.id}
-                  variant={activeTab === item.id ? "default" : "ghost"}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`flex-1 sm:flex-none items-center gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm ${activeTab === item.id ? "bg-gradient-to-r from-purple-600 to-pink-600" : "hover:bg-white/10"}`}
-                >
-                  {item.icon} <span className="hidden sm:inline">{item.label}</span>
-                </Button>
-              ))}
-            </nav>
-          </div>
-        </footer>
+        <Footer activeTab={activeTab} setActiveTab={setActiveTabFn} />
+        
       </div>
     </TooltipProvider>
   )

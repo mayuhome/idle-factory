@@ -1,106 +1,119 @@
+'use client';
+
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Factory } from '@/types/factory';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@radix-ui/react-dropdown-menu';
+// import { DropdownMenuItem } from '@radix-ui/react-dropdown-menu';
 import { Progress } from '@/components/ui/progress';
 import { ChevronDown, FactoryIcon, FlaskConical, Leaf, Package, Settings2, ShoppingCart, Star, Lock } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Goods } from '@/types/goods';
 import { RawResource } from '@/types/raw-resource';
-export const renderProductionPage = ({rawResources, availableGoods}:{rawResources: RawResource[], availableGoods: Goods[]}) => {
-    const [factories, setFactories] = useState<Factory[]>([
-    {
-      id: 1,
-      name: "Assembly Line Alpha",
-      visualIcon: <FactoryIcon className="w-12 h-12 text-blue-400" />,
-      effectType: "Standard Output",
-      selectedGoodId: "iron_ingot",
-      level: 1,
-      baseProductionTime: 5000,
-      productionProgress: 0,
-      lastSaleTime: Date.now(),
-      isLocked: false,
-      unlockConditionText: "",
-      color: "border-blue-500",
-    },
-    {
-      id: 2,
-      name: "Precision Workshop",
-      visualIcon: <Settings2 className="w-12 h-12 text-green-400" />,
-      effectType: "Quality Focus",
-      selectedGoodId: null,
-      level: 1,
-      baseProductionTime: 7000,
-      productionProgress: 0,
-      lastSaleTime: Date.now(),
-      isLocked: true,
-      unlockConditionText: "Reach World Lvl 2",
-      color: "border-green-500",
-    },
-    {
-      id: 3,
-      name: "Bulk Processor",
-      visualIcon: <Package className="w-12 h-12 text-yellow-400" />,
-      effectType: "Mass Production",
-      selectedGoodId: null,
-      level: 1,
-      baseProductionTime: 4000,
-      productionProgress: 0,
-      lastSaleTime: Date.now(),
-      isLocked: true,
-      unlockConditionText: "Research 'Advanced Logistics'",
-      color: "border-yellow-500",
-    },
-    {
-      id: 4,
-      name: "Artisan Guild",
-      visualIcon: <Star className="w-12 h-12 text-purple-400" />,
-      effectType: "Artisan Craftsmanship",
-      selectedGoodId: null,
-      level: 1,
-      baseProductionTime: 10000,
-      productionProgress: 0,
-      lastSaleTime: Date.now(),
-      isLocked: true,
-      unlockConditionText: "Produce 100 Crystal Lenses",
-      color: "border-purple-500",
-    },
-    {
-      id: 5,
-      name: "Synth Lab",
-      visualIcon: <FlaskConical className="w-12 h-12 text-pink-400" />,
-      effectType: "Synthetic Goods",
-      selectedGoodId: null,
-      level: 1,
-      baseProductionTime: 8000,
-      productionProgress: 0,
-      lastSaleTime: Date.now(),
-      isLocked: true,
-      unlockConditionText: "Unlock 'Mystic Essence' Mine",
-      color: "border-pink-500",
-    },
-    {
-      id: 6,
-      name: "Eco Factory",
-      visualIcon: <Leaf className="w-12 h-12 text-teal-400" />,
-      effectType: "Sustainable Production",
-      selectedGoodId: null,
-      level: 1,
-      baseProductionTime: 6000,
-      productionProgress: 0,
-      lastSaleTime: Date.now(),
-      isLocked: true,
-      unlockConditionText: "Research 'Eco-Friendly Materials'",
-      color: "border-teal-500",
-    },
-  ]);
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
+type props = {
+  rawResources: RawResource[];
+  availableGoods: Goods[];
+  factories: Factory[];
+};
+export const renderProductionPage = ({rawResources, availableGoods, factories}:props) => {
+    console.log('init production');
+    
+  //   const [factories, setFactories] = useState<Factory[]>([
+  //   {
+  //     id: 1,
+  //     name: "Factory Alpha",
+  //     visualIcon: <FactoryIcon className="w-12 h-12 text-blue-400" />,
+  //     effectType: "Standard Output",
+  //     selectedGoodId: "iron_ingot",
+  //     level: 1,
+  //     baseProductionTime: 5000,
+  //     productionProgress: 0,
+  //     lastSaleTime: Date.now(),
+  //     isLocked: false,
+  //     unlockConditionText: "",
+  //     color: "border-blue-500",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Factory Beta",
+  //     visualIcon: <Settings2 className="w-12 h-12 text-green-400" />,
+  //     effectType: "Quality Focus",
+  //     selectedGoodId: null,
+  //     level: 1,
+  //     baseProductionTime: 7000,
+  //     productionProgress: 0,
+  //     lastSaleTime: Date.now(),
+  //     isLocked: true,
+  //     unlockConditionText: "Reach World Lvl 2",
+  //     color: "border-green-500",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Factory Gamma",
+  //     visualIcon: <Package className="w-12 h-12 text-yellow-400" />,
+  //     effectType: "Mass Production",
+  //     selectedGoodId: null,
+  //     level: 1,
+  //     baseProductionTime: 4000,
+  //     productionProgress: 0,
+  //     lastSaleTime: Date.now(),
+  //     isLocked: true,
+  //     unlockConditionText: "Research 'Advanced Logistics'",
+  //     color: "border-yellow-500",
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "Factory Delta",
+  //     visualIcon: <Star className="w-12 h-12 text-purple-400" />,
+  //     effectType: "Artisan Craftsmanship",
+  //     selectedGoodId: null,
+  //     level: 1,
+  //     baseProductionTime: 10000,
+  //     productionProgress: 0,
+  //     lastSaleTime: Date.now(),
+  //     isLocked: true,
+  //     unlockConditionText: "Produce 100 Crystal Lenses",
+  //     color: "border-purple-500",
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "Factory Epsilon",
+  //     visualIcon: <FlaskConical className="w-12 h-12 text-pink-400" />,
+  //     effectType: "Synthetic Goods",
+  //     selectedGoodId: null,
+  //     level: 1,
+  //     baseProductionTime: 8000,
+  //     productionProgress: 0,
+  //     lastSaleTime: Date.now(),
+  //     isLocked: true,
+  //     unlockConditionText: "Unlock 'Mystic Essence' Mine",
+  //     color: "border-pink-500",
+  //   },
+  //   {
+  //     id: 6,
+  //     name: "Factory Zeta",
+  //     visualIcon: <Leaf className="w-12 h-12 text-teal-400" />,
+  //     effectType: "Sustainable Production",
+  //     selectedGoodId: null,
+  //     level: 1,
+  //     baseProductionTime: 6000,
+  //     productionProgress: 0,
+  //     lastSaleTime: Date.now(),
+  //     isLocked: true,
+  //     unlockConditionText: "Research 'Eco-Friendly Materials'",
+  //     color: "border-teal-500",
+  //   },
+  // ]);
 
     const handleSelectGood = (factoryId: number, goodId: string | null) => {
-    setFactories((prev) =>
-      prev.map((f) => (f.id === factoryId ? { ...f, selectedGoodId: goodId, productionProgress: 0 } : f)),
-    )
+    // setFactories((prev) =>
+    //   prev.map((f) => (f.id === factoryId ? { ...f, selectedGoodId: goodId, productionProgress: 0 } : f)),
+    // )
   }
+  // console.log('Factories:', factories);
+  
 
   return (
 <div className="space-y-6">
