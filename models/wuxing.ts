@@ -1,7 +1,8 @@
 import { EWuXing } from './enums';
 
 
-// 五行相生的顺序为：木生火，火生土，土生金，金生水，水生木；五行相克的顺序为：木克土、土克水、水克火、火克金、金克木。
+// 五行相生的顺序为：木生火，火生土，土生金，金生水，水生木；
+// 五行相克的顺序为：木克土、土克水、水克火、火克金、金克木。
 export interface WuXingBase {
     type: EWuXing;
     value: number;

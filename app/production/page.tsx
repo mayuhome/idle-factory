@@ -6,11 +6,12 @@ import { Factory } from '@/types/factory';
 // import { DropdownMenuItem } from '@radix-ui/react-dropdown-menu';
 import { Progress } from '@/components/ui/progress';
 import { ChevronDown, FactoryIcon, FlaskConical, Leaf, Package, Settings2, ShoppingCart, Star, Lock } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Goods } from '@/types/goods';
 import { RawResource } from '@/types/raw-resource';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Indicator } from '@radix-ui/react-progress';
 
 type props = {
   rawResources: RawResource[];
@@ -114,7 +115,15 @@ export const renderProductionPage = ({rawResources, availableGoods, factories}:p
   }
   // console.log('Factories:', factories);
   
-
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setProgress(Math.random() * 100), 3750);
+    setTimeout(() => {
+      clearInterval(timer);
+    }, 23000);
+    // return () => clearInterval(timer);
+  }, [])
+  
   return (
 <div className="space-y-6">
       {factories.map((factory) => (
@@ -182,7 +191,10 @@ export const renderProductionPage = ({rawResources, availableGoods, factories}:p
                       ? availableGoods.find((g) => g.id === factory.selectedGoodId)?.name
                       : "Nothing"}
                   </p>
-                  <Progress value={factory.productionProgress} className="h-3 mb-2" />
+                                      <Progress value={progress} max={100}>
+                                        {/* <Indicator style={{ transform: `translateX(-${100 - progress}%)` }}/> */}
+                                      </Progress>
+                  {/* <Progress value={factory.productionProgress} className="h-3 mb-2" /> */}
                   {factory.selectedGoodId && (
                     <div>
                       <p className="text-xs text-gray-500">Required Resources:</p>

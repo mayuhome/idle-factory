@@ -26,8 +26,6 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { RawResource } from '@/types/raw-resource'
@@ -36,7 +34,7 @@ import { Factory } from '@/types/factory'
 import { Mine } from '@/types/mine'
 import { ResearchItem } from '@/types/research'
 import { renderProductionPage } from './production/page'
-import { renderResourcePage } from './resource/page'
+import { renderResourcesPage } from './resources/page'
 import Footer from './layout/footer'
 
 // --- Helper Functions ---
@@ -92,7 +90,58 @@ export default function IdleFactoryGame() {
 
   const [rawResources, setRawResources] = useState<RawResource[]>(initialRawResources)
   const [availableGoods, setAvailableGoods] = useState<Goods[]>(initialGoods.filter((g) => !g.researchId)) // Goods not requiring research
-
+  const [mines, setMines] = useState<Mine[]>([])
+  const [researchItems, setResearchItems] = useState<ResearchItem[]>([
+    {
+      id: "research_lens_crafting",
+      name: "Lens Crafting",
+      description: "Unlock Crystal Lens production.",
+      icon: <Gem className="w-6 h-6" />,
+      cost: [
+        { type: "money", amount: 500 },
+        { type: "resource", id: "ore", amount: 50 },
+      ],
+      type: "good",
+      isResearched: false,
+      unlocksGoodId: "crystal_lens",
+    },
+    {
+      id: "research_adv_logistics",
+      name: "Advanced Logistics",
+      description: "Improves factory efficiency.",
+      icon: <Settings2 className="w-6 h-6" />,
+      cost: [
+        { type: "money", amount: 1000 },
+        { type: "mana", amount: 20 },
+      ],
+      type: "enhancement",
+      isResearched: false,
+      enhancementEffect: "-10% Production Time",
+    },
+    {
+      id: "research_fiber_weaving",
+      name: "Fiber Weaving Tech",
+      description: "Unlock Woven Fabric production.",
+      icon: <Users className="w-6 h-6" />,
+      cost: [
+        { type: "money", amount: 300 },
+        { type: "resource", id: "plant_fiber", amount: 100 },
+      ],
+      type: "good",
+      isResearched: false,
+      unlocksGoodId: "fabric",
+    },
+    {
+      id: "research_faster_drills",
+      name: "Faster Drills",
+      description: "Increases mine output by 20%.",
+      icon: <Pickaxe className="w-6 h-6" />,
+      cost: [{ type: "money", amount: 2000 }],
+      type: "enhancement",
+      isResearched: false,
+      enhancementEffect: "+20% Mine Output",
+    },
+  ])
   const [factories, setFactories] = useState<Factory[]>([
     {
       id: 1,
@@ -180,7 +229,7 @@ export default function IdleFactoryGame() {
     },
   ])
 
-  const [mines, setMines] = useState<Mine[]>([])
+
   useEffect(() => {
     // Generate mine names once
     if (mines.length === 0) {
@@ -215,57 +264,7 @@ export default function IdleFactoryGame() {
     }
   }, [mines.length])
 
-  const [researchItems, setResearchItems] = useState<ResearchItem[]>([
-    {
-      id: "research_lens_crafting",
-      name: "Lens Crafting",
-      description: "Unlock Crystal Lens production.",
-      icon: <Gem className="w-6 h-6" />,
-      cost: [
-        { type: "money", amount: 500 },
-        { type: "resource", id: "ore", amount: 50 },
-      ],
-      type: "good",
-      isResearched: false,
-      unlocksGoodId: "crystal_lens",
-    },
-    {
-      id: "research_adv_logistics",
-      name: "Advanced Logistics",
-      description: "Improves factory efficiency.",
-      icon: <Settings2 className="w-6 h-6" />,
-      cost: [
-        { type: "money", amount: 1000 },
-        { type: "mana", amount: 20 },
-      ],
-      type: "enhancement",
-      isResearched: false,
-      enhancementEffect: "-10% Production Time",
-    },
-    {
-      id: "research_fiber_weaving",
-      name: "Fiber Weaving Tech",
-      description: "Unlock Woven Fabric production.",
-      icon: <Users className="w-6 h-6" />,
-      cost: [
-        { type: "money", amount: 300 },
-        { type: "resource", id: "plant_fiber", amount: 100 },
-      ],
-      type: "good",
-      isResearched: false,
-      unlocksGoodId: "fabric",
-    },
-    {
-      id: "research_faster_drills",
-      name: "Faster Drills",
-      description: "Increases mine output by 20%.",
-      icon: <Pickaxe className="w-6 h-6" />,
-      cost: [{ type: "money", amount: 2000 }],
-      type: "enhancement",
-      isResearched: false,
-      enhancementEffect: "+20% Mine Output",
-    },
-  ])
+  
 
   // --- Game Logic Effects ---
 
@@ -347,6 +346,15 @@ export default function IdleFactoryGame() {
     // }, 100)
     // return () => clearInterval(interval)
   }, [factories, availableGoods, rawResources]) // Added rawResources dependency
+
+  // const [progress, setProgress] = useState(13);
+  // useEffect(() => {
+	// 	const timer = setInterval(() => setProgress(Math.random() * 100), 300);
+  //   setTimeout(() => {
+  //     clearInterval(timer);
+  //   }, 13000);
+	// 	// return () => clearInterval(timer);
+  // }, [])
 
   // --- UI Event Handlers ---
 
@@ -459,6 +467,9 @@ export default function IdleFactoryGame() {
                           .join(", ")}
                       </div>
                     </div>
+                    {/* <Progress value={progress} max={100}>
+                      <Indicator style={{ transform: `translateX(-${100 - progress}%)` }}/>
+                    </Progress> */}
                     <Button
                       size="sm"
                       onClick={() => handleResearch(item.id)}
@@ -527,9 +538,9 @@ export default function IdleFactoryGame() {
     
     switch (activeTab) {
       case "production":
-        return renderProductionPage({ rawResources, availableGoods, factories })
+        // return renderProductionPage({ [], [], [] })
       case "resource":
-        return renderResourcePage({ mines, rawResources })
+        return renderResourcesPage()
       case "research":
         return renderResearchPage()
       // Placeholder for other tabs from previous version
