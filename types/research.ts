@@ -2,7 +2,7 @@ export interface ResearchItem {
   id: string
   name: string
   description: string
-  icon: React.ReactNode
+  icon: any,// React.ReactNode
   cost: { type: "money" | "mana" | "resource"; id?: string; amount: number }[]
   type: "good" | "enhancement"
   isResearched: boolean

@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import React from 'react'
-import { useResourceStore } from '../stores/resource-store'
+import { useResourceStore, addResource, removeResource } from '../stores/resource-store'
 import { Progress } from '@radix-ui/react-progress'
 
 
@@ -13,12 +13,11 @@ export const renderResourcesPage = () =>
   console.log(resources);
   
 
-  const increaseResource =  useResourceStore((state) => state.addResource);
 
   const increase = (id: number) => {
     console.log(`increase ${id}`);
     
-    return increaseResource(id, 10);
+    return addResource(id, 10);
   }
 
   return (
@@ -28,9 +27,9 @@ export const renderResourcesPage = () =>
           <Card key={resource.id} className={cn("overflow-hidden", resource.color)}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-black/10" onClick={() => increase(resource.id)}>
               <div className="flex items-center gap-2">
-                {React.cloneElement(resource.icon, {
+                {/* {React.cloneElement(resource.icon, {
                   className: cn(resource.icon.props.className, resource.color || "text-gray-300"),
-                })}
+                })} */}
                 <CardTitle className="text-base">{resource.name}</CardTitle>
               </div>
               {/* <span className="text-xs bg-black/20 px-2 py-1 rounded">Lvl {resource.level}</span> */}
